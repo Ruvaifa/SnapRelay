@@ -67,7 +67,14 @@ class Camera2ControlBridge {
         // Apply Camera2 options
         camera2Control.setCaptureRequestOptions(optionsBuilder.build())
 
-        // 3. Exposure Compensation via CameraX API
+        // 3. Torch / Flash mode
+        try {
+            cameraControl.enableTorch(state.isTorchEnabled)
+        } catch (e: Exception) {
+            Log.e("Camera2ControlBridge", "Failed to set torch mode", e)
+        }
+
+        // 4. Exposure Compensation via CameraX API
         if (report?.isExposureCompensationSupported == true) {
             try {
                 cameraControl.setExposureCompensationIndex(state.exposureCompensationIndex)

@@ -143,7 +143,18 @@ fun CameraControlChips(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // 2. AE Lock Chip
+            // 2. Flash / Torch Chip
+            ChipItem(
+                label = if (settingsState.isTorchEnabled) "FLASH ON" else "FLASH OFF",
+                isLocked = settingsState.isTorchEnabled,
+                onClick = {
+                    onSettingsChanged(settingsState.copy(isTorchEnabled = !settingsState.isTorchEnabled))
+                }
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // 3. AE Lock Chip
             if (capabilities?.isAeLockSupported == true) {
                 ChipItem(
                     label = if (settingsState.isAeLocked) "AE LOCK" else "AE AUTO",
