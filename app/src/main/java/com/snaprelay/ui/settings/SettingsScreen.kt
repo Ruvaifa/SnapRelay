@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.ListAlt
+import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -61,6 +62,7 @@ fun SettingsScreen(
     captureRepository: CaptureRepository,
     telegramUploader: TelegramUploader,
     latestCapturedFile: File?,
+    onResetToDefaults: () -> Unit,
     onBackClicked: () -> Unit,
     onOpenLogsClicked: () -> Unit,
     modifier: Modifier = Modifier
@@ -108,7 +110,7 @@ fun SettingsScreen(
             }
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Settings & Debugging",
+                text = "Settings & Preferences",
                 color = Color.White,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold
@@ -208,7 +210,28 @@ fun SettingsScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Restore Defaults Button inside Settings
+        OutlinedButton(
+            onClick = {
+                onResetToDefaults()
+                coroutineScope.launch {
+                    settingsRepository.updateRotationDegrees(90)
+                    settingsRepository.updateDeleteAfterUpload(false)
+                }
+                testStatusMessage = "All camera controls and orientation reset to default values (90°)."
+            },
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFF59E0B)),
+            modifier = Modifier.fillMaxWidth().height(48.dp)
+        ) {
+            Icon(imageVector = Icons.Default.RestartAlt, contentDescription = null, tint = Color(0xFFF59E0B))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Restore Camera Controls to Default", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
 
         // View Live Activity Logs Button
         OutlinedButton(

@@ -265,12 +265,6 @@ fun CameraScreen(
                     coroutineScope.launch {
                         settingsRepository.updateRotationDegrees(newSettings.rotationDegrees)
                     }
-                },
-                onResetClicked = {
-                    cameraManager.resetToDefaults()
-                    coroutineScope.launch {
-                        settingsRepository.updateRotationDegrees(90)
-                    }
                 }
             )
 
