@@ -13,15 +13,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.RestartAlt
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +46,7 @@ fun CameraControlChips(
     settingsState: CameraSettingsState,
     capabilities: CameraCapabilityReport?,
     onSettingsChanged: (CameraSettingsState) -> Unit,
+    onResetClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var activeSliderPanel by remember { mutableStateOf<SliderPanel?>(null) }
@@ -49,7 +54,7 @@ fun CameraControlChips(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Expandable Slider Popup Panel
@@ -125,7 +130,7 @@ fun CameraControlChips(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Horizontal HUD Chips Bar (AF, AE, ISO, EV)
+        // Horizontal HUD Chips Bar (AF, AE, ISO, EV, RESET ↺)
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
@@ -140,7 +145,7 @@ fun CameraControlChips(
                 }
             )
 
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(4.dp))
 
             // 2. AE Lock Chip
             ChipItem(
@@ -151,7 +156,7 @@ fun CameraControlChips(
                 }
             )
 
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(4.dp))
 
             // 3. ISO Adjustment Chip
             ChipItem(
@@ -162,7 +167,7 @@ fun CameraControlChips(
                 }
             )
 
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(4.dp))
 
             // 4. EV Adjustment Chip
             ChipItem(
@@ -172,6 +177,27 @@ fun CameraControlChips(
                     activeSliderPanel = if (activeSliderPanel == SliderPanel.EV) null else SliderPanel.EV
                 }
             )
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            // 5. Restore Defaults Reset Button (↺)
+            IconButton(
+                onClick = {
+                    activeSliderPanel = null
+                    onResetClicked()
+                },
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(Color.Black.copy(alpha = 0.6f))
+            ) {
+                Icon(
+                    imageVector = Icons.Default.RestartAlt,
+                    contentDescription = "Restore Defaults",
+                    tint = Color(0xFF94A3B8),
+                    modifier = Modifier.size(16.dp)
+                )
+            }
         }
     }
 }
@@ -190,20 +216,20 @@ private fun ChipItem(
             .clip(RoundedCornerShape(20.dp))
             .background(bgColor)
             .clickable { onClick() }
-            .padding(horizontal = 10.dp, vertical = 8.dp)
+            .padding(horizontal = 8.dp, vertical = 7.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = if (isLocked) Icons.Default.Lock else Icons.Default.LockOpen,
                 contentDescription = null,
                 tint = contentColor,
-                modifier = Modifier.height(13.dp)
+                modifier = Modifier.height(12.dp)
             )
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(3.dp))
             Text(
                 text = label,
                 color = contentColor,
-                fontSize = 11.sp,
+                fontSize = 10.sp,
                 fontWeight = FontWeight.Bold
             )
         }

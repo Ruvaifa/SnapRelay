@@ -106,6 +106,11 @@ class CameraManager(
         }
     }
 
+    fun resetToDefaults() {
+        val defaultSettings = CameraSettingsState()
+        updateSettings(defaultSettings)
+    }
+
     fun focusOnPoint(x: Float, y: Float, previewView: PreviewView) {
         val cameraControl = camera?.cameraControl ?: return
         try {
