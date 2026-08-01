@@ -136,6 +136,7 @@ class MainActivity : ComponentActivity() {
                                     settingsRepository = settingsRepository,
                                     captureRepository = captureRepository,
                                     telegramUploader = telegramUploader,
+                                    uploadQueueManager = uploadQueueManager,
                                     latestCapturedFile = latestCapturedFile,
                                     onResetToDefaults = { cameraManager.resetToDefaults() },
                                     onBackClicked = { currentScreen = Screen.CAMERA },

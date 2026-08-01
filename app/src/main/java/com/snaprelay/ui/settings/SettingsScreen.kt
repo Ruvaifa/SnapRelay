@@ -1,6 +1,7 @@
 package com.snaprelay.ui.settings
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.ListAlt
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Visibility
@@ -52,7 +54,9 @@ import androidx.compose.ui.unit.sp
 import com.snaprelay.capture.CaptureRepository
 import com.snaprelay.settings.SettingsRepository
 import com.snaprelay.upload.TelegramUploader
+import com.snaprelay.upload.UploadQueueManager
 import com.snaprelay.upload.UploadResult
+import com.snaprelay.upload.UploadStatus
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -61,6 +65,7 @@ fun SettingsScreen(
     settingsRepository: SettingsRepository,
     captureRepository: CaptureRepository,
     telegramUploader: TelegramUploader,
+    uploadQueueManager: UploadQueueManager? = null,
     latestCapturedFile: File?,
     onResetToDefaults: () -> Unit,
     onBackClicked: () -> Unit,
@@ -70,6 +75,9 @@ fun SettingsScreen(
     val appSettings by settingsRepository.settingsFlow.collectAsState(initial = com.snaprelay.settings.AppSettings())
     val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+
+    val uploadTasks by (uploadQueueManager?.tasks?.collectAsState() ?: remember { mutableStateOf(emptyList()) })
+    val failedCount = uploadTasks.count { it.status == UploadStatus.FAILED }
 
     var botTokenInput by remember { mutableStateOf("") }
     var chatIdInput by remember { mutableStateOf("") }
@@ -208,6 +216,41 @@ fun SettingsScreen(
                     checkedTrackColor = Color(0xFF2563EB)
                 )
             )
+        }
+
+        // Retry & Clear Failed Uploads Section if any failed tasks exist
+        if (failedCount > 0) {
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = {
+                        uploadQueueManager?.retryAllFailedTasks()
+                        testStatusMessage = "Retrying $failedCount failed upload(s)..."
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.weight(1f).height(48.dp)
+                ) {
+                    Icon(imageVector = Icons.Default.Refresh, contentDescription = null)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Retry $failedCount Failed", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        uploadQueueManager?.clearFailedTasks()
+                        testStatusMessage = "Cleared failed upload warnings."
+                    },
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF94A3B8)),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.weight(1f).height(48.dp)
+                ) {
+                    Text("Clear Warnings", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))

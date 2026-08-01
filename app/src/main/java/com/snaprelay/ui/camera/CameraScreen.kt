@@ -156,7 +156,7 @@ fun CameraScreen(
                 Spacer(modifier = Modifier.height(4.dp))
                 val (queueText, queueColor) = when {
                     pendingCount > 0 -> "📤 Uploading ($pendingCount in queue)" to Color(0xFF38BDF8)
-                    failedCount > 0 -> "⚠️ $failedCount Failed" to Color(0xFFEF4444)
+                    failedCount > 0 -> "⚠️ $failedCount Failed (Tap to Retry)" to Color(0xFFEF4444)
                     uploadTasks.isNotEmpty() -> "✅ All Uploaded" to Color(0xFF10B981)
                     else -> "Ready" to Color(0xFF94A3B8)
                 }
@@ -164,6 +164,13 @@ fun CameraScreen(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
                         .background(Color(0xFF1E293B).copy(alpha = 0.85f))
+                        .then(
+                            if (failedCount > 0) {
+                                Modifier.clickable {
+                                    uploadQueueManager.retryAllFailedTasks()
+                                }
+                            } else Modifier
+                        )
                         .padding(horizontal = 10.dp, vertical = 4.dp)
                 ) {
                     Text(

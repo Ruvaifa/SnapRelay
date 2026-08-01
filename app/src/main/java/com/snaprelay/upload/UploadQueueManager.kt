@@ -77,6 +77,25 @@ class UploadQueueManager(
         logRepository?.log("Retry", "Manual retry triggered for task $taskId.")
     }
 
+    fun retryAllFailedTasks() {
+        val updatedList = _tasks.value.map { task ->
+            if (task.status == UploadStatus.FAILED) {
+                task.copy(status = UploadStatus.PENDING, attempts = 0, errorMessage = null)
+            } else {
+                task
+            }
+        }
+        updateQueue(updatedList)
+        triggerChannel.trySend(Unit)
+        logRepository?.log("Retry", "Triggered retry for all failed tasks.")
+    }
+
+    fun clearFailedTasks() {
+        val updatedList = _tasks.value.filter { it.status != UploadStatus.FAILED }
+        updateQueue(updatedList)
+        logRepository?.log("Queue", "Cleared failed tasks from queue.")
+    }
+
     fun clearCompletedTasks() {
         val updatedList = _tasks.value.filter { it.status != UploadStatus.SUCCESS }
         updateQueue(updatedList)
