@@ -14,10 +14,14 @@
 
 * **📷 Hardware Volume-Up Trigger:** Intercepts `KEYCODE_VOLUME_UP` with 400ms debouncing. Captures photos instantly without triggering the system media volume slider overlay.
 * **🔬 Maximum Sensor Resolution & ISP Tuning:** Uses CameraX `ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY` to capture at full sensor megapixel count (e.g., 50MP / 12MP), 100% loss-less JPEG compression quality, and hardware-level ISP edge sharpening (`EDGE_MODE_HIGH_QUALITY`) tailored for crisp laptop text legibility.
-* **🎯 Fixed-Rig Manual Controls (HUD Chips):**
+* **🔄 Manual Target Orientation (Default 90°):** Dedicated top-header rotation button cycling `90° → 180° → 270° → 0°`. Keeps uploaded laptop photos horizontally upright when your phone is mounted horizontally on a tripod.
+* **⚡ Top Header Quick Actions:**
+  * **⚡ Flash/Torch Toggle Button:** Toggles phone torch for dark environment lighting.
+  * **🔄 Manual Rotation Button:** Quick-cycle camera orientation.
+  * **⚙️ Settings Button:** Access Telegram configuration, storage management, and live logs.
+* **🎯 Fixed-Rig Bottom HUD Control Chips:**
   * **AF LOCK / AF AUTO:** Lock focus distance once aligned with your laptop screen.
   * **AE LOCK / AE AUTO:** Lock exposure so brightness doesn't flicker when laptop screen content changes.
-  * **FLASH ON / OFF:** Toggle device torch for dark environment lighting.
   * **ISO & EV Sliders:** Adjust manual ISO sensitivity and Exposure Compensation (-4 to +4 EV).
   * **Tap-to-Focus:** Tap anywhere on the live preview screen to focus on specific code or text.
 * **⚡ Non-Blocking Background Upload Queue:**
@@ -25,7 +29,7 @@
   * Disk-persisted queue (`upload_queue.json`) for process death and phone reboot recovery.
   * Automatic exponential backoff retries (2s, 4s, 8s… capped at 60s).
 * **✈️ Direct Telegram Integration:** Uses OkHttp `multipart/form-data` to hit `sendDocument`, delivering uncompressed JPEGs straight to your Telegram chat.
-* **💾 Storage Management:** Saved in app-scoped private storage (`Android/data/com.snaprelay/files/Pictures/`) to prevent gallery clutter. Includes live disk usage stats, 1-tap cache clear, and a **"Delete After Upload"** auto-cleanup switch.
+* **💾 Storage & Reset Management:** Saved in app-scoped private storage (`Android/data/com.snaprelay/files/Pictures/`). Includes live disk usage stats, 1-tap cache clear, **"Delete After Upload"** switch, and **"Restore Camera Controls to Default"** reset button.
 * **📜 Live Debug Logs:** Built-in 500-entry ring buffer log screen showing real-time event stages (`Captured`, `Queued`, `Uploading`, `Success`, `Failure`).
 
 ---
@@ -111,20 +115,23 @@ git clone https://github.com/Ruvaifa/SnapRelay.git
 
 ## 🎛️ Adjustable Controls & Settings
 
-### 📱 Camera Screen HUD Controls
-| Control | Behavior | Best Used For |
-|---|---|---|
-| **AF LOCK / AF AUTO** | Toggles Auto Focus vs. Locked Focus | Locking focus distance once fixed on tripod |
-| **AE LOCK / AE AUTO** | Toggles Auto Exposure vs. Locked Exposure | Preventing flickering when laptop screen text changes |
-| **FLASH ON / OFF** | Toggles phone flashlight/torch | Dark room environments |
-| **ISO Slider** | Adjusts sensor light sensitivity (100–3200) | Manual noise reduction in low light |
-| **EV Slider** | Exposure Compensation (-4 to +4 EV) | Fine-tuning screen brightness contrast |
-| **Tap-to-Focus** | Tap anywhere on live preview | Focusing precisely on small code/text |
+### 📱 Camera Screen Action Controls & HUD
+| Control | Location | Behavior | Best Used For |
+|---|---|---|---|
+| **⚡ Flash** | Top Header | Toggles phone torch ON/OFF | Dark room environments |
+| **🔄 Rotation (90°)** | Top Header | Cycles orientation (90°, 180°, 270°, 0°) | Horizontal tripod laptop screen setups |
+| **⚙️ Settings** | Top Header | Opens Settings, storage & log viewer | Configuration & debugging |
+| **AF LOCK / AF AUTO** | Bottom HUD Bar | Toggles Auto Focus vs. Locked Focus | Locking focus distance once fixed on tripod |
+| **AE LOCK / AE AUTO** | Bottom HUD Bar | Toggles Auto Exposure vs. Locked Exposure | Preventing flickering when laptop screen text changes |
+| **ISO Slider** | Bottom HUD Bar | Adjusts sensor light sensitivity (100–3200) | Manual noise reduction in low light |
+| **EV Slider** | Bottom HUD Bar | Exposure Compensation (-4 to +4 EV) | Fine-tuning screen brightness contrast |
+| **Tap-to-Focus** | Preview Touch | Tap anywhere on live preview | Focusing precisely on small code/text |
 
 ### ⚙️ Settings Screen Configuration
 * **Telegram Bot Token:** Your secret bot HTTP token.
 * **Telegram Chat ID:** Your personal or group chat ID.
 * **Delete After Upload:** Automatically deletes JPEGs from phone memory after Telegram confirmation.
+* **Restore Camera Controls to Default:** Resets AF/AE locks, ISO, EV, flash, and sets rotation back to default `90°`.
 * **Local Storage Management:** Displays count/MB of stored photos with a 1-tap **"Clear All Local Snapshots"** button.
 * **View Live Upload & Activity Logs:** Opens the real-time logging screen to debug network timeouts or capture events.
 
@@ -142,7 +149,7 @@ SnapRelay/
  │    │    ├── CameraManager.kt          # CameraX provider, full sensor resolution, tap-focus
  │    │    ├── Camera2ControlBridge.kt    # ISP edge sharpening, noise reduction, AE/AF/Torch
  │    │    ├── CameraCapabilities.kt      # Introspects device hardware capabilities
- │    │    ├── CameraSettingsState.kt     # In-memory camera settings state
+ │    │    ├── CameraSettingsState.kt     # In-memory camera settings state (default 90° rotation)
  │    │    └── VolumeKeyCaptureHandler.kt # Intercepts & debounces KEYCODE_VOLUME_UP
  │    │
  │    ├── capture/
@@ -177,6 +184,9 @@ SnapRelay/
 1. Tap directly on the laptop text on the live camera preview screen to trigger **tap-to-focus**.
 2. Once sharp, tap the **AF LOCK** chip at the bottom so the camera locks focus at that exact distance.
 3. Make sure the phone lens is clean and the tripod distance is fixed.
+
+#### Q: The photo uploaded to Telegram looks vertical/rotated on a horizontal tripod.
+Tap the **🔄 90°** button on the top right action header to select **90°** or **270°**. This forces the captured JPEG target rotation to stay horizontally upright!
 
 #### Q: Photos are not arriving in my Telegram chat.
 1. Open **Settings ⚙️ → View Live Upload & Activity Logs**.
