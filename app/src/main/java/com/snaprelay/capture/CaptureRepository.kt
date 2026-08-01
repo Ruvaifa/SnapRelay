@@ -30,6 +30,25 @@ class CaptureRepository(private val context: Context) {
         return File(getPicturesDirectory(), fileName)
     }
 
+    fun getStorageUsage(): Pair<Int, Long> {
+        val dir = getPicturesDirectory()
+        val files = dir.listFiles { file -> file.isFile && file.name.endsWith(".jpg") } ?: emptyArray()
+        val totalBytes = files.sumOf { it.length() }
+        return Pair(files.size, totalBytes)
+    }
+
+    fun clearAllLocalSnapshots(): Int {
+        val dir = getPicturesDirectory()
+        val files = dir.listFiles { file -> file.isFile && file.name.endsWith(".jpg") } ?: emptyArray()
+        var deletedCount = 0
+        for (file in files) {
+            if (file.delete()) {
+                deletedCount++
+            }
+        }
+        return deletedCount
+    }
+
     fun notifyCaptured(file: File) {
         _captureEvents.tryEmit(CaptureEvent.Captured(file))
     }

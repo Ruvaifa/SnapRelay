@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.snaprelay.app-mergeDebugResources-56:/values-land/values-land.xml",
+            "outputFile": "com.snaprelay.app-mergeDebugResources-57:/values-land/values-land.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\HP\\.gradle\\caches\\transforms-4\\842282e0175a1c4974adcb33a623d713\\transformed\\appcompat-1.1.0\\res\\values-land\\values-land.xml",
+                    "source": "C:\\Users\\HP\\.gradle\\caches\\transforms-4\\642a3626bbda996a50f28e13173c966c\\transformed\\appcompat-1.1.0\\res\\values-land\\values-land.xml",
                     "from": {
                         "startLines": "2,3,4",
                         "startColumns": "4,4,4",
