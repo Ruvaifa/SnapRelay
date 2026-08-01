@@ -22,8 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Tune
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,7 +49,7 @@ fun CameraControlChips(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Expandable Slider Popup Panel
@@ -127,10 +125,11 @@ fun CameraControlChips(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Horizontal HUD Chips Bar
+        // Horizontal HUD Chips Bar (AF, AE, ISO, EV)
         Row(
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
         ) {
             // 1. AF Lock Chip
             ChipItem(
@@ -141,65 +140,38 @@ fun CameraControlChips(
                 }
             )
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(6.dp))
 
-            // Manual Camera Rotation Chip (0°, 90°, 180°, 270°)
+            // 2. AE Lock Chip
             ChipItem(
-                label = "ROT ${settingsState.rotationDegrees}°",
-                isLocked = settingsState.rotationDegrees != 0,
+                label = if (settingsState.isAeLocked) "AE LOCK" else "AE AUTO",
+                isLocked = settingsState.isAeLocked,
                 onClick = {
-                    val nextRotation = (settingsState.rotationDegrees + 90) % 360
-                    onSettingsChanged(settingsState.copy(rotationDegrees = nextRotation))
+                    onSettingsChanged(settingsState.copy(isAeLocked = !settingsState.isAeLocked))
                 }
             )
 
-            Spacer(modifier = Modifier.width(8.dp))
-
-            // 2. Flash / Torch Chip
-            ChipItem(
-                label = if (settingsState.isTorchEnabled) "FLASH ON" else "FLASH OFF",
-                isLocked = settingsState.isTorchEnabled,
-                onClick = {
-                    onSettingsChanged(settingsState.copy(isTorchEnabled = !settingsState.isTorchEnabled))
-                }
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            // 3. AE Lock Chip
-            if (capabilities?.isAeLockSupported == true) {
-                ChipItem(
-                    label = if (settingsState.isAeLocked) "AE LOCK" else "AE AUTO",
-                    isLocked = settingsState.isAeLocked,
-                    onClick = {
-                        onSettingsChanged(settingsState.copy(isAeLocked = !settingsState.isAeLocked))
-                    }
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-            }
+            Spacer(modifier = Modifier.width(6.dp))
 
             // 3. ISO Adjustment Chip
-            if (capabilities?.isManualIsoSupported == true) {
-                ChipItem(
-                    label = if (settingsState.isManualIsoEnabled) "ISO ${settingsState.iso}" else "ISO AUTO",
-                    isLocked = settingsState.isManualIsoEnabled,
-                    onClick = {
-                        activeSliderPanel = if (activeSliderPanel == SliderPanel.ISO) null else SliderPanel.ISO
-                    }
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-            }
+            ChipItem(
+                label = if (settingsState.isManualIsoEnabled) "ISO ${settingsState.iso}" else "ISO AUTO",
+                isLocked = settingsState.isManualIsoEnabled,
+                onClick = {
+                    activeSliderPanel = if (activeSliderPanel == SliderPanel.ISO) null else SliderPanel.ISO
+                }
+            )
 
-            // 4. EV (Exposure Compensation) Chip
-            if (capabilities?.isExposureCompensationSupported == true) {
-                ChipItem(
-                    label = "EV ${settingsState.exposureCompensationIndex}",
-                    isLocked = settingsState.exposureCompensationIndex != 0,
-                    onClick = {
-                        activeSliderPanel = if (activeSliderPanel == SliderPanel.EV) null else SliderPanel.EV
-                    }
-                )
-            }
+            Spacer(modifier = Modifier.width(6.dp))
+
+            // 4. EV Adjustment Chip
+            ChipItem(
+                label = "EV ${settingsState.exposureCompensationIndex}",
+                isLocked = settingsState.exposureCompensationIndex != 0,
+                onClick = {
+                    activeSliderPanel = if (activeSliderPanel == SliderPanel.EV) null else SliderPanel.EV
+                }
+            )
         }
     }
 }
@@ -218,20 +190,20 @@ private fun ChipItem(
             .clip(RoundedCornerShape(20.dp))
             .background(bgColor)
             .clickable { onClick() }
-            .padding(horizontal = 14.dp, vertical = 8.dp)
+            .padding(horizontal = 10.dp, vertical = 8.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = if (isLocked) Icons.Default.Lock else Icons.Default.LockOpen,
                 contentDescription = null,
                 tint = contentColor,
-                modifier = Modifier.height(14.dp)
+                modifier = Modifier.height(13.dp)
             )
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = label,
                 color = contentColor,
-                fontSize = 12.sp,
+                fontSize = 11.sp,
                 fontWeight = FontWeight.Bold
             )
         }

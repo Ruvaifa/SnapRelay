@@ -5,5 +5,5 @@ data class AppSettings(
     val chatId: String = "",
     val deleteAfterUpload: Boolean = false,
     val maxUploadRetries: Int = 3,
-    val rotationDegrees: Int = 0
+    val rotationDegrees: Int = 90
 )

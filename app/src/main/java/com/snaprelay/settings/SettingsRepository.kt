@@ -27,7 +27,7 @@ class SettingsRepository(private val context: Context) {
             chatId = preferences[PreferenceKeys.CHAT_ID] ?: "",
             deleteAfterUpload = preferences[PreferenceKeys.DELETE_AFTER_UPLOAD] ?: false,
             maxUploadRetries = preferences[PreferenceKeys.MAX_UPLOAD_RETRIES] ?: 3,
-            rotationDegrees = preferences[PreferenceKeys.ROTATION_DEGREES] ?: 0
+            rotationDegrees = preferences[PreferenceKeys.ROTATION_DEGREES] ?: 90
         )
     }
 
