@@ -2,6 +2,7 @@ package com.snaprelay.camera
 
 import android.content.Context
 import android.util.Log
+import android.view.Surface
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.FocusMeteringAction
@@ -48,9 +49,13 @@ class CameraManager(
                 val provider = cameraProviderFuture.get()
                 this.cameraProvider = provider
 
-                val preview = Preview.Builder().build().also {
-                    it.setSurfaceProvider(previewView.surfaceProvider)
-                }
+                val targetRotation = getSurfaceRotation(_settingsState.value.rotationDegrees)
+
+                val preview = Preview.Builder()
+                    .setTargetRotation(targetRotation)
+                    .build().also {
+                        it.setSurfaceProvider(previewView.surfaceProvider)
+                    }
 
                 // Force full high-resolution sensor strategy (50MP/12MP max camera hardware output)
                 val resolutionSelector = ResolutionSelector.Builder()
@@ -62,6 +67,7 @@ class CameraManager(
                     .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                     .setJpegQuality(100)
                     .setResolutionSelector(resolutionSelector)
+                    .setTargetRotation(targetRotation)
                     .build()
 
                 val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -91,6 +97,15 @@ class CameraManager(
         }, ContextCompat.getMainExecutor(context))
     }
 
+    private fun getSurfaceRotation(degrees: Int): Int {
+        return when (degrees) {
+            90 -> Surface.ROTATION_90
+            180 -> Surface.ROTATION_180
+            270 -> Surface.ROTATION_270
+            else -> Surface.ROTATION_0
+        }
+    }
+
     fun focusOnPoint(x: Float, y: Float, previewView: PreviewView) {
         val cameraControl = camera?.cameraControl ?: return
         try {
@@ -106,6 +121,8 @@ class CameraManager(
 
     fun updateSettings(newSettings: CameraSettingsState) {
         _settingsState.value = newSettings
+        val rotation = getSurfaceRotation(newSettings.rotationDegrees)
+        imageCapture?.targetRotation = rotation
         controlBridge.applySettings(camera, newSettings, _capabilities.value)
     }
 
@@ -116,6 +133,9 @@ class CameraManager(
             onResult(Result.failure(err))
             return
         }
+
+        // Ensure targetRotation is explicitly set right before takePicture
+        captureUseCase.targetRotation = getSurfaceRotation(_settingsState.value.rotationDegrees)
 
         val outputFile = captureRepository.createOutputFile()
         val outputOptions = ImageCapture.OutputFileOptions.Builder(outputFile).build()

@@ -18,6 +18,7 @@ class SettingsRepository(private val context: Context) {
         val CHAT_ID = stringPreferencesKey("telegram_chat_id")
         val DELETE_AFTER_UPLOAD = booleanPreferencesKey("delete_after_upload")
         val MAX_UPLOAD_RETRIES = intPreferencesKey("max_upload_retries")
+        val ROTATION_DEGREES = intPreferencesKey("rotation_degrees")
     }
 
     val settingsFlow: Flow<AppSettings> = context.dataStore.data.map { preferences ->
@@ -25,7 +26,8 @@ class SettingsRepository(private val context: Context) {
             botToken = preferences[PreferenceKeys.BOT_TOKEN] ?: "",
             chatId = preferences[PreferenceKeys.CHAT_ID] ?: "",
             deleteAfterUpload = preferences[PreferenceKeys.DELETE_AFTER_UPLOAD] ?: false,
-            maxUploadRetries = preferences[PreferenceKeys.MAX_UPLOAD_RETRIES] ?: 3
+            maxUploadRetries = preferences[PreferenceKeys.MAX_UPLOAD_RETRIES] ?: 3,
+            rotationDegrees = preferences[PreferenceKeys.ROTATION_DEGREES] ?: 0
         )
     }
 
@@ -44,6 +46,12 @@ class SettingsRepository(private val context: Context) {
     suspend fun updateDeleteAfterUpload(delete: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferenceKeys.DELETE_AFTER_UPLOAD] = delete
+        }
+    }
+
+    suspend fun updateRotationDegrees(degrees: Int) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferenceKeys.ROTATION_DEGREES] = degrees
         }
     }
 }

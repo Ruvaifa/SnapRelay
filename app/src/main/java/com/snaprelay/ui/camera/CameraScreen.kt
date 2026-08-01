@@ -47,11 +47,16 @@ import com.snaprelay.upload.UploadQueueManager
 import com.snaprelay.upload.UploadStatus
 import kotlinx.coroutines.delay
 
+import androidx.compose.runtime.rememberCoroutineScope
+import com.snaprelay.settings.SettingsRepository
+import kotlinx.coroutines.launch
+
 @Composable
 fun CameraScreen(
     cameraManager: CameraManager,
     captureRepository: CaptureRepository,
     uploadQueueManager: UploadQueueManager,
+    settingsRepository: SettingsRepository,
     onOpenSettingsClicked: () -> Unit,
     onFileCaptured: (java.io.File) -> Unit = {},
     modifier: Modifier = Modifier
@@ -188,11 +193,15 @@ fun CameraScreen(
                 .padding(bottom = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val coroutineScope = rememberCoroutineScope()
             CameraControlChips(
                 settingsState = settingsState,
                 capabilities = capabilities,
                 onSettingsChanged = { newSettings ->
                     cameraManager.updateSettings(newSettings)
+                    coroutineScope.launch {
+                        settingsRepository.updateRotationDegrees(newSettings.rotationDegrees)
+                    }
                 }
             )
 

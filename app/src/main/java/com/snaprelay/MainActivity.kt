@@ -95,6 +95,16 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        // Restore saved rotation preference
+        lifecycleScope.launch {
+            settingsRepository.settingsFlow.collect { settings ->
+                val current = cameraManager.settingsState.value
+                if (current.rotationDegrees != settings.rotationDegrees) {
+                    cameraManager.updateSettings(current.copy(rotationDegrees = settings.rotationDegrees))
+                }
+            }
+        }
+
         volumeKeyCaptureHandler = VolumeKeyCaptureHandler {
             if (hasCameraPermission && currentScreen == Screen.CAMERA) {
                 cameraManager.captureNow { /* Captured */ }
@@ -116,6 +126,7 @@ class MainActivity : ComponentActivity() {
                                     cameraManager = cameraManager,
                                     captureRepository = captureRepository,
                                     uploadQueueManager = uploadQueueManager,
+                                    settingsRepository = settingsRepository,
                                     onOpenSettingsClicked = { currentScreen = Screen.SETTINGS },
                                     onFileCaptured = { file -> latestCapturedFile = file }
                                 )

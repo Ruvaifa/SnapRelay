@@ -143,6 +143,18 @@ fun CameraControlChips(
 
             Spacer(modifier = Modifier.width(8.dp))
 
+            // Manual Camera Rotation Chip (0°, 90°, 180°, 270°)
+            ChipItem(
+                label = "ROT ${settingsState.rotationDegrees}°",
+                isLocked = settingsState.rotationDegrees != 0,
+                onClick = {
+                    val nextRotation = (settingsState.rotationDegrees + 90) % 360
+                    onSettingsChanged(settingsState.copy(rotationDegrees = nextRotation))
+                }
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
             // 2. Flash / Torch Chip
             ChipItem(
                 label = if (settingsState.isTorchEnabled) "FLASH ON" else "FLASH OFF",
